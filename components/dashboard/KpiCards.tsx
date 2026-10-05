@@ -25,6 +25,8 @@ interface KpiCardsProps {
 }
 
 export default function KpiCards({ stats, selectedState }: KpiCardsProps) {
+  const isAllStates = !selectedState || selectedState.toLowerCase() === "all";
+
   // Compute Month-over-Month changes from the seeded monthly snapshots
   const snapshots = stats.monthlyTrend || [];
   const latestSnapshot = snapshots.length > 0 ? snapshots[snapshots.length - 1] : null;
@@ -59,9 +61,8 @@ export default function KpiCards({ stats, selectedState }: KpiCardsProps) {
       id: "kpi-area",
       label: "Total Area Notified",
       value: formatArea(stats.totalAreaNotifiedHa),
-      subtext: `${stats.parcelsCount} parcels tracked${
-        selectedState !== "All" ? ` in ${selectedState}` : " nationwide"
-      }`,
+      subtext: `${stats.parcelsCount} parcels tracked${selectedState !== "All" ? ` in ${selectedState}` : " nationwide"
+        }`,
       delta: areaDelta,
       icon: Layers,
       iconBg: "bg-emerald-50 text-emerald-600 border border-emerald-100",
@@ -70,11 +71,10 @@ export default function KpiCards({ stats, selectedState }: KpiCardsProps) {
       id: "kpi-compensation",
       label: "Compensation Paid",
       value: formatCurrencyCr(stats.totalCompensationPaidCr),
-      subtext: `of ${formatCurrencyCr(stats.totalCompensationDueCr)} due (${
-        stats.totalCompensationDueCr > 0
-          ? Math.round((stats.totalCompensationPaidCr / stats.totalCompensationDueCr) * 100)
-          : 0
-      }%)`,
+      subtext: `of ${formatCurrencyCr(stats.totalCompensationDueCr)} due (${stats.totalCompensationDueCr > 0
+        ? Math.round((stats.totalCompensationPaidCr / stats.totalCompensationDueCr) * 100)
+        : 0
+        }%)`,
       delta: compDelta,
       icon: IndianRupee,
       iconBg: "bg-amber-50 text-amber-600 border border-amber-100",
@@ -83,9 +83,8 @@ export default function KpiCards({ stats, selectedState }: KpiCardsProps) {
       id: "kpi-possession",
       label: "Possession Achieved",
       value: formatPercentage(stats.possessionAchievedPct),
-      subtext: `${stats.parcelsByStatus.PossessionCompleted || 0} of ${
-        stats.parcelsCount
-      } parcels taken`,
+      subtext: `${stats.parcelsByStatus.PossessionCompleted || 0} of ${stats.parcelsCount
+        } parcels taken`,
       delta: possessionDelta,
       icon: CheckCircle2,
       iconBg: "bg-purple-50 text-purple-600 border border-purple-100",
@@ -94,9 +93,8 @@ export default function KpiCards({ stats, selectedState }: KpiCardsProps) {
       id: "kpi-risk",
       label: "Projects at Risk",
       value: `${stats.projectsAtRiskCount}`,
-      subtext: `${stats.totalProjects} active projects${
-        selectedState !== "All" ? ` in ${selectedState}` : ""
-      }`,
+      subtext: `${stats.totalProjects} active projects${selectedState !== "All" ? ` in ${selectedState}` : ""
+        }`,
       delta: riskDelta,
       icon: AlertTriangle,
       iconBg: "bg-rose-50 text-rose-600 border border-rose-100",
@@ -134,33 +132,39 @@ export default function KpiCards({ stats, selectedState }: KpiCardsProps) {
             </div>
 
             {/* Bottom row: Label and Delta Pill */}
-            <div className="mt-2 pt-2 border-t border-slate-100 flex items-center justify-between gap-2">
-              <div>
-                <p className="text-xs font-medium text-slate-600">{card.label}</p>
-                <p className="text-[11px] text-slate-400 mt-0.5 truncate max-w-[140px]">
+            <div className="mt-2 pt-2 border-t border-slate-100 flex items-center justify-between gap-1.5">
+              <div className="min-w-0 flex-1">
+                <p className="text-xs font-medium text-slate-600 truncate">{card.label}</p>
+                <p className="text-[11px] text-slate-400 mt-0.5 truncate">
                   {card.subtext}
                 </p>
               </div>
 
-              {/* Delta Badge */}
-              <div
-                className={`flex items-center gap-0.5 px-2 py-0.5 rounded-full text-[11px] font-semibold flex-shrink-0 ${
-                  delta.sentiment === "positive"
-                    ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
-                    : delta.sentiment === "negative"
-                    ? "bg-rose-50 text-rose-700 border border-rose-200"
-                    : "bg-slate-100 text-slate-600 border border-slate-200"
-                }`}
-              >
-                {delta.sentiment === "positive" ? (
-                  <ArrowUpRight className="w-3 h-3" />
-                ) : delta.sentiment === "negative" ? (
-                  <ArrowDownRight className="w-3 h-3" />
-                ) : (
-                  <Minus className="w-3 h-3" />
-                )}
-                <span>{delta.text}</span>
-              </div>
+              {/* Delta Badge: shown only for All States where snapshots are real aggregates */}
+              {isAllStates ? (
+                <div
+                  className={`flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[10px] font-semibold shrink-0 ${
+                    delta.sentiment === "positive"
+                      ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                      : delta.sentiment === "negative"
+                      ? "bg-rose-50 text-rose-700 border border-rose-200"
+                      : "bg-slate-100 text-slate-600 border border-slate-200"
+                  }`}
+                >
+                  {delta.sentiment === "positive" ? (
+                    <ArrowUpRight className="w-2.5 h-2.5" />
+                  ) : delta.sentiment === "negative" ? (
+                    <ArrowDownRight className="w-2.5 h-2.5" />
+                  ) : (
+                    <Minus className="w-2.5 h-2.5" />
+                  )}
+                  <span>{delta.text}</span>
+                </div>
+              ) : (
+                <span className="text-[10px] font-medium text-slate-400 bg-slate-50 px-1.5 py-0.5 rounded border border-slate-200/60 shrink-0">
+                  n/a
+                </span>
+              )}
             </div>
           </div>
         );

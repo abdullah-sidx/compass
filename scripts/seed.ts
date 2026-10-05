@@ -15,6 +15,8 @@ import type {
   Role,
 } from "../lib/types";
 
+export const AS_OF_DATE = "2026-10-05";
+
 // Deterministic PRNG (Mulberry32)
 function createPrng(seed: number) {
   let s = seed;
@@ -512,22 +514,39 @@ function generateStagesForProject(project: ProjectConfig, baseRisk: RiskLevel): 
 
   const currentIndex = stageNames.indexOf(currentStage);
 
+  const asOf = new Date(AS_OF_DATE);
+
   for (let i = 0; i < stageNames.length; i++) {
     const sName = stageNames[i];
     const role = stageOwnerRoles[sName];
-    const startYear = 2024;
-    const sDate = `${startYear}-${(i * 2 + 1).toString().padStart(2, "0")}-01`;
-    const dDate = `${startYear}-${(i * 2 + 2).toString().padStart(2, "0")}-28`;
 
+    let sDate: string;
+    let dDate: string;
     let status: Stage["status"] = "Pending";
     let completedDate: string | null = null;
 
     if (i < currentIndex) {
+      // Completed stages in the past
+      const offsetDays = (currentIndex - i) * 90;
+      sDate = new Date(asOf.getTime() - (offsetDays + 80) * 86400000).toISOString().split("T")[0];
+      dDate = new Date(asOf.getTime() - (offsetDays) * 86400000).toISOString().split("T")[0];
+      completedDate = new Date(asOf.getTime() - (offsetDays + 5) * 86400000).toISOString().split("T")[0];
       status = "Approved";
-      completedDate = `${startYear}-${(i * 2 + 2).toString().padStart(2, "0")}-20`;
     } else if (i === currentIndex) {
-      status = baseRisk === "High" ? "Overdue" : "In review";
+      // Current active stage
+      sDate = new Date(asOf.getTime() - 45 * 86400000).toISOString().split("T")[0];
+      if (baseRisk === "High") {
+        dDate = new Date(asOf.getTime() - 10 * 86400000).toISOString().split("T")[0]; // Overdue before 2026-10-05
+        status = "Overdue";
+      } else {
+        dDate = new Date(asOf.getTime() + 45 * 86400000).toISOString().split("T")[0]; // In review due in Nov 2026
+        status = "In review";
+      }
     } else {
+      // Future pending stages
+      const offsetDays = (i - currentIndex) * 75;
+      sDate = new Date(asOf.getTime() + offsetDays * 86400000).toISOString().split("T")[0];
+      dDate = new Date(asOf.getTime() + (offsetDays + 60) * 86400000).toISOString().split("T")[0];
       status = "Pending";
     }
 
@@ -608,6 +627,9 @@ export function generateSeedData() {
     // Create a few payments for parcels that have compensationPaid > 0
     const paidParcels = parcels.filter((p) => p.compensationPaid > 0);
     for (const p of paidParcels.slice(0, 2)) {
+      const pmtDate = new Date(new Date(AS_OF_DATE).getTime() - (20 + (payments.length % 5) * 12) * 86400000)
+        .toISOString()
+        .split("T")[0];
       payments.push({
         id: `PMT-${cfg.stateCode}-${payments.length + 101}`,
         projectId: cfg.id,
@@ -615,16 +637,16 @@ export function generateSeedData() {
         amountCr: Number((p.compensationPaid / 10000000).toFixed(2)),
         beneficiaryMasked: p.ownerMasked,
         status: "Completed",
-        date: "2024-08-15",
+        date: pmtDate,
         referenceNo: `PFMS-TXN-${randInt(100000, 999999)}`,
       });
     }
   }
 
-  // 12 Monthly Snapshots (Nov 2024 - Oct 2025)
+  // 12 Monthly Snapshots ending in September 2026 (relative to AS_OF_DATE 2026-10-05)
   const monthNames = [
-    "Nov 2024", "Dec 2024", "Jan 2025", "Feb 2025", "Mar 2025", "Apr 2025",
-    "May 2025", "Jun 2025", "Jul 2025", "Aug 2025", "Sep 2025", "Oct 2025"
+    "Oct 2025", "Nov 2025", "Dec 2025", "Jan 2026", "Feb 2026", "Mar 2026",
+    "Apr 2026", "May 2026", "Jun 2026", "Jul 2026", "Aug 2026", "Sep 2026"
   ];
 
   const currentAreaHa = projects.reduce((acc, p) => acc + p.landAreaHa, 0);
@@ -644,7 +666,7 @@ export function generateSeedData() {
     };
   });
 
-  // Audit Events chain (SHA-256 hash chaining)
+  // Audit Events chain (SHA-256 hash chaining) deterministically anchored to AS_OF_DATE
   const auditEvents: AuditEvent[] = [];
   let prevHash = "0000000000000000000000000000000000000000000000000000000000000000";
 
@@ -656,10 +678,12 @@ export function generateSeedData() {
     { actor: "Special Land Acquisition Officer", role: "FieldOfficer" as Role, action: "Verified boundary demarcation stones on site" },
   ];
 
+  const asOfMs = new Date(`${AS_OF_DATE}T09:30:00Z`).getTime();
+
   for (let i = 0; i < 15; i++) {
     const act = sampleActions[i % sampleActions.length];
     const prj = projects[i % projects.length];
-    const timestamp = new Date(Date.now() - (15 - i) * 86400000 * 2).toISOString();
+    const timestamp = new Date(asOfMs - (15 - i) * 86400000 * 2).toISOString();
     const eventId = `AUD-${(i + 1).toString().padStart(4, "0")}`;
     const payload = `${eventId}|${prj.id}|${act.actor}|${act.role}|${act.action}|${timestamp}|${prevHash}`;
     const hash = crypto.createHash("sha256").update(payload).digest("hex");
@@ -679,6 +703,7 @@ export function generateSeedData() {
   }
 
   return {
+    asOfDate: AS_OF_DATE,
     projects,
     parcels: allParcels,
     stagesByProject,

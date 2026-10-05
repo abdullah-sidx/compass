@@ -7,14 +7,14 @@ interface DashboardHeaderProps {
   selectedState: string;
   onSelectState: (state: string) => void;
   allStates: string[];
-  lastUpdatedMonth: string;
+  lastUpdatedDate: string;
 }
 
 export default function DashboardHeader({
   selectedState,
   onSelectState,
   allStates,
-  lastUpdatedMonth,
+  lastUpdatedDate,
 }: DashboardHeaderProps) {
   return (
     <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-2 border-b border-slate-200/80">
@@ -34,11 +34,11 @@ export default function DashboardHeader({
       </div>
 
       <div className="flex flex-wrap items-center gap-3">
-        {/* Dynamic Last Updated timestamp computed from latest snapshot */}
+        {/* Dynamic Last Updated timestamp */}
         <div className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-100/80 rounded-lg text-xs font-medium text-slate-600 border border-slate-200/60">
           <Clock className="w-3.5 h-3.5 text-slate-400" />
           <span>
-            Last updated: <span className="font-semibold text-slate-800">{lastUpdatedMonth}</span>
+            Last updated: <span className="font-semibold text-slate-800">{lastUpdatedDate}</span>
           </span>
         </div>
 

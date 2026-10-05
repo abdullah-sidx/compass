@@ -1,13 +1,13 @@
 "use client";
 
 import React, { useState, useMemo } from "react";
-import { getStats, getProjects, getAllStates } from "@/lib/data";
+import { getStats, getProjects, getAllStates, getAsOfDate } from "@/lib/data";
 import DashboardHeader from "./DashboardHeader";
 import KpiCards from "./KpiCards";
 import ProgressDonut from "./ProgressDonut";
 import ParcelsByStatus from "./ParcelsByStatus";
 import TopStatesBarList from "./TopStatesBarList";
-import MapSlotPlaceholder from "./MapSlotPlaceholder";
+import CompactParcelMap from "./CompactParcelMap";
 import ProjectsAtRiskTable from "./ProjectsAtRiskTable";
 
 export default function OverviewDashboard() {
@@ -25,13 +25,7 @@ export default function OverviewDashboard() {
     return getProjects({ state: selectedState });
   }, [selectedState]);
 
-  // Dynamic last updated timestamp from the latest monthly snapshot
-  const lastUpdatedMonth = useMemo(() => {
-    if (stats.monthlyTrend && stats.monthlyTrend.length > 0) {
-      return stats.monthlyTrend[stats.monthlyTrend.length - 1].month;
-    }
-    return "Oct 2025";
-  }, [stats.monthlyTrend]);
+  const lastUpdatedDate = getAsOfDate();
 
   return (
     <div className="space-y-6">
@@ -40,7 +34,7 @@ export default function OverviewDashboard() {
         selectedState={selectedState}
         onSelectState={setSelectedState}
         allStates={allStates}
-        lastUpdatedMonth={lastUpdatedMonth}
+        lastUpdatedDate={lastUpdatedDate}
       />
 
       {/* 2. Four KPI Cards */}
@@ -59,9 +53,9 @@ export default function OverviewDashboard() {
           />
         </div>
 
-        {/* Centre Column: Reserved Land Acquisition Map Slot */}
+        {/* Centre Column: Interactive Compact Parcel Map */}
         <div className="lg:col-span-8 xl:col-span-5">
-          <MapSlotPlaceholder stats={stats} selectedState={selectedState} />
+          <CompactParcelMap stats={stats} selectedState={selectedState} />
         </div>
 
         {/* Right Column: Projects at Risk Table */}

@@ -10,6 +10,12 @@ import type {
   StatsResponse,
 } from "./types";
 
+export const AS_OF_DATE = "2026-10-05";
+
+export function getAsOfDate(): string {
+  return "5 Oct 2026";
+}
+
 interface SeedDataStore {
   projects: Project[];
   parcels: Parcel[];
