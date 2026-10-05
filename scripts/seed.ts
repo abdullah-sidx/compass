@@ -14,6 +14,7 @@ import type {
   StageName,
   Role,
 } from "../lib/types";
+import { predict } from "../lib/risk";
 
 export const AS_OF_DATE = "2026-10-05";
 
@@ -583,22 +584,22 @@ export function generateSeedData() {
     const compPaidTotal = parcels.reduce((acc, p) => acc + p.compensationPaid, 0);
     const compPaidPct = compDueTotal > 0 ? Math.round((compPaidTotal / compDueTotal) * 100) : 0;
 
-    let riskScore = 25;
-    let estDelayMonths = 2.0;
-
-    if (cfg.baseRisk === "High") {
-      riskScore = Math.round(randBetween(72, 92));
-      estDelayMonths = Number(randBetween(7.5, 14.0).toFixed(1));
-    } else if (cfg.baseRisk === "Medium") {
-      riskScore = Math.round(randBetween(42, 68));
-      estDelayMonths = Number(randBetween(3.5, 6.8).toFixed(1));
-    } else {
-      riskScore = Math.round(randBetween(14, 34));
-      estDelayMonths = Number(randBetween(0.5, 2.2).toFixed(1));
-    }
-
     const openObjections = cfg.baseRisk === "High" ? randInt(18, 45) : cfg.baseRisk === "Medium" ? randInt(5, 16) : randInt(0, 4);
     const stageDelayDays = cfg.baseRisk === "High" ? randInt(45, 120) : cfg.baseRisk === "Medium" ? randInt(15, 40) : randInt(0, 10);
+    const disputes = disputesCount + delayedCount;
+
+    const riskFeatures = {
+      landAreaHa: totalAreaHa,
+      parcelsCount: parcels.length,
+      familiesAffected: totalFamilies,
+      openObjections,
+      disputes,
+      stageDelayDays,
+      compensationPaidPct: compPaidPct,
+      forestClearancePending: cfg.forestClearancePending,
+    };
+
+    const prediction = predict(riskFeatures);
 
     const project: Project = {
       id: cfg.id,
@@ -607,19 +608,12 @@ export function generateSeedData() {
       state: cfg.state,
       agency: cfg.agency,
       stage: currentStage,
-      riskScore,
-      riskLevel: cfg.baseRisk,
-      estDelayMonths,
+      riskScore: prediction.score,
+      riskLevel: prediction.level,
+      estDelayMonths: prediction.estDelayMonths,
       keyIssue: cfg.keyIssue,
       startDate: cfg.startDate,
-      landAreaHa: totalAreaHa,
-      parcelsCount: parcels.length,
-      familiesAffected: totalFamilies,
-      openObjections,
-      disputes: disputesCount + delayedCount,
-      stageDelayDays,
-      compensationPaidPct: compPaidPct,
-      forestClearancePending: cfg.forestClearancePending,
+      ...riskFeatures,
     };
 
     projects.push(project);
@@ -657,12 +651,14 @@ export function generateSeedData() {
 
   const monthlySnapshots: MonthlySnapshot[] = monthNames.map((month, idx) => {
     const factor = (idx + 1) / 12;
+    const isLatest = idx === 11;
     return {
       month,
       areaNotifiedHa: Number((currentAreaHa * (0.65 + 0.35 * factor)).toFixed(1)),
       compensationPaidCr: Number((currentPaidCr * (0.3 + 0.7 * factor)).toFixed(2)),
       possessionPct: Math.round(currentPossessionPct * (0.25 + 0.75 * factor)),
-      projectsAtRisk: Math.max(2, Math.round(highRiskCount + (1 - factor) * 3 - (idx % 2))),
+      // Earlier snapshots keep their seeded trend; latest snapshot matches the prediction count exactly
+      projectsAtRisk: isLatest ? highRiskCount : Math.max(2, Math.round(highRiskCount + (1 - factor) * 3 - (idx % 2))),
     };
   });
 

@@ -50,11 +50,55 @@
   - Automated verification script `scripts/verify-chunk2.ts` passing 100% of checks.
   - Production build (`npm run build`) passing with zero errors.
 
+- Chunk 3: AI delay-risk + what-if
+  - Trained interpretable standardized Ordinary Least Squares (OLS) model via `/ml/train.py` using Python 3.11.9 and scikit-learn on 3,000 synthetic projects.
+  - Model metrics:
+    - Held-out $R^2$: `0.9762`
+    - Held-out MAE: `0.3601` months
+    - Model Intercept: `6.7638` months (baseline delay at mean feature values)
+  - Feature Importance Table (Standardized Beta Coefficients):
+    | Feature | Beta Coef | Mean | Std | Impact on Delay |
+    | :--- | :---: | :---: | :---: | :--- |
+    | Forest Clearance Pending | `+1.3210` | 0.22 | 0.42 | Raises delay |
+    | Open Objections (Sec. 15) | `+0.9539` | 15.15 | 10.07 | Raises delay |
+    | Stage Delay (Days) | `+0.8714` | 38.89 | 25.48 | Raises delay |
+    | Compensation Disbursed (%) | `-0.7634` | 67.46 | 17.98 | Lowers delay |
+    | Active Disputes | `+0.6842` | 7.92 | 4.83 | Raises delay |
+    | Families Affected | `+0.3088` | 60.38 | 25.38 | Raises delay |
+    | Parcels Count | `+0.2149` | 21.51 | 7.74 | Raises delay |
+    | Land Area (Hectares) | `+0.1936` | 41.52 | 19.52 | Raises delay |
+  - Exported model spec to `/public/model/risk-model.json` including `meta` block (trainedOn: "synthetic data", n: 3000, r2: 0.9762, date: "2026-10-05"), feature parameters, thresholds, and slider boundaries.
+  - Built zero-server-call browser inference engine in `/lib/risk.ts`:
+    - `predict(features, overrides?)` calculates exact per-feature standardized contributions ($\text{impact}_j = \beta_j \times z_j$), estimated delay in months, and risk score (0-100).
+    - `getRecommendedActions(topFactors, features)` generates 3 targeted rule-based policy interventions.
+  - Replaced seeded risk figures via `predict()` in `scripts/seed.ts`:
+    - 5 High Risk (score 91-100, delay 11.8 - 15.7 mo).
+    - 6 Medium Risk (score 47-65, delay 4.1 - 6.3 mo).
+    - 4 Low Risk (score 15-32, delay 1.2 - 2.6 mo).
+    - Synced 12th monthly snapshot (`Sep 2026`) `projectsAtRisk` to 5 so the Overview KPI card and risk table match 100% nationwide and for each state filter. Earlier snapshots 1-11 kept as seeded.
+  - Built `/projects` portfolio page (`components/projects/ProjectsTable.tsx`):
+    - Searchable by name, ID, agency, state, district.
+    - Risk level filter pills: All (15), High (5), Medium (6), Low (4).
+    - State and sector filters.
+    - Sortable columns: Name, State, Stage, Risk Score, Delay Months, Open Objections.
+    - Direct "Simulate" link to individual project risk views.
+  - Built `/projects/[id]` project detail view (`components/projects/ProjectDetailClient.tsx`):
+    - `<RiskGauge />`: Circular SVG speedometer arc with score 0-100, official risk level chip, baseline vs simulated delta badge.
+    - `<WhyAtRiskBars />`: Diverging impact bars for top 5 factors (red adds delay, green mitigates delay).
+    - `<RecommendedActions />`: 3 rule-based action cards with priority badges ("Urgent", "Statutory", "Operational") and potential delay reduction estimates.
+    - `<WhatIfSimulator />`: 4 interactive controls (Open Objections slider 0-50, Stage Delay slider 0-120d, Compensation Disbursed slider 0-100%, Forest Clearance Pending toggle) with live score and delay delta recomputation, plus "Reset to Actuals".
+    - Prominent banner: *"Prototype model trained on synthetic data (SIH26016 Demo)"*.
+  - Updated Overview `ProjectsAtRiskTable.tsx` so clicking any project links directly to `/projects/${project.id}`.
+  - Added REST endpoint `/api/projects/[id]/route.ts`.
+  - Automated acceptance test `scripts/verify-chunk3.ts` passing 100% of checks.
+  - Full acceptance verification (`scripts/verify.ts`, `verify-chunk1.ts`, `verify-chunk2.ts`, `verify-chunk3.ts`) passing.
+  - Production build (`npm run build`) passing with zero errors.
+
 ## In progress
-(none - Chunk 2 complete)
+(none - Chunk 3 complete)
 
 ## Next
-Chunk 3: AI delay-risk + what-if
+Chunk 4: alignment checker
 
 ## Decisions
 - 2026-10-05: Added `lucide-react` for clean interface icons in sidebar, header, and route status placeholders.
@@ -69,10 +113,16 @@ Chunk 3: AI delay-risk + what-if
 - 2026-10-05: Set dynamic zoom boundary between project cluster circles and parcel polygons at zoom 8.5, allowing seamless transition from national overview to parcel inspection.
 - 2026-10-05: Added `FALLBACK_LIGHT_STYLE` with `#f8fafc` background ensuring spatial geometries render reliably in offline environments without external internet connectivity.
 - 2026-10-05: Split `/parcels` layout into 5 cols list / 7 cols map (lg) and 4 cols list / 8 cols map (xl) for comfortable badge spacing on desktop screens (1280px+).
+- 2026-10-05: Used Python 3.11.9 with scikit-learn for `/ml/train.py` (both available on Windows host), training on 3,000 synthetic projects with an 80/20 train/test split.
+- 2026-10-05: Model target is project delay in months; risk score is calibrated to map $\le 3.2$ mo to Low risk ($<40$), $3.2 - 6.8$ mo to Medium risk ($40-69$), and $\ge 6.8$ mo to High risk ($\ge 70$).
+- 2026-10-05: Imported `/public/model/risk-model.json` synchronously in `/lib/risk.ts` so prediction runs 100% in browser with zero network latency or server requests.
+- 2026-10-05: Retained months 1-11 seeded snapshots and strictly updated the 12th snapshot (`Sep 2026`) to equal high risk count (5) so the KPI delta badge and table agree nationwide and per state.
+- 2026-10-05: Clamped simulation predictions between 0-100 score and $\ge 0.2$ delay months.
 
 ## Known issues
 (none)
 
 ## Notes for the next session
-- Step 0 and Chunk 2 are complete, verified, and committed.
-- Next step is Chunk 3: AI delay-risk + what-if model training in Python (`/ml/train.py`), exporting `/public/model/risk-model.json`, browser-based inference in `/lib/risk.ts`, and interactive project risk pages with what-if sliders.
+- Chunk 3 is complete, verified in browser, and passing `npm run build`.
+- Next step is Chunk 4: Alignment checker at `/alignment` (corridor centerline drawing, Option A vs Option B comparison, corridor width buffer, affected parcels/families/cost computation, and summary export).
+

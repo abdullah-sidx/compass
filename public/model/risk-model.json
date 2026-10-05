@@ -1,0 +1,111 @@
+{
+  "meta": {
+    "trainedOn": "synthetic data",
+    "n": 3000,
+    "r2": 0.9762,
+    "mae": 0.3601,
+    "date": "2026-10-05",
+    "description": "Standardized Ordinary Least Squares model trained on 3000 synthetic land acquisition projects",
+    "disclaimer": "Prototype model trained on synthetic data. Not for official statutory determination."
+  },
+  "intercept": 6.7638,
+  "features": {
+    "forestClearancePending": {
+      "label": "Forest Clearance Pending",
+      "mean": 0.2238,
+      "std": 0.4168,
+      "coef": 1.321,
+      "direction": "increases_risk"
+    },
+    "openObjections": {
+      "label": "Open Objections",
+      "mean": 15.1533,
+      "std": 10.0666,
+      "coef": 0.9539,
+      "direction": "increases_risk"
+    },
+    "stageDelayDays": {
+      "label": "Stage Delay (Days)",
+      "mean": 38.8925,
+      "std": 25.4771,
+      "coef": 0.8714,
+      "direction": "increases_risk"
+    },
+    "compensationPaidPct": {
+      "label": "Compensation Disbursed (%)",
+      "mean": 67.46,
+      "std": 17.9821,
+      "coef": -0.7634,
+      "direction": "reduces_risk"
+    },
+    "disputes": {
+      "label": "Active Disputes",
+      "mean": 7.9154,
+      "std": 4.8289,
+      "coef": 0.6842,
+      "direction": "increases_risk"
+    },
+    "familiesAffected": {
+      "label": "Families Affected",
+      "mean": 60.3837,
+      "std": 25.3819,
+      "coef": 0.3088,
+      "direction": "increases_risk"
+    },
+    "parcelsCount": {
+      "label": "Parcels Count",
+      "mean": 21.5113,
+      "std": 7.7417,
+      "coef": 0.2149,
+      "direction": "increases_risk"
+    },
+    "landAreaHa": {
+      "label": "Land Area (Hectares)",
+      "mean": 41.5153,
+      "std": 19.518,
+      "coef": 0.1936,
+      "direction": "increases_risk"
+    }
+  },
+  "featureOrder": [
+    "forestClearancePending",
+    "openObjections",
+    "stageDelayDays",
+    "compensationPaidPct",
+    "disputes",
+    "familiesAffected",
+    "parcelsCount",
+    "landAreaHa"
+  ],
+  "thresholds": {
+    "lowMaxScore": 39,
+    "mediumMaxScore": 69,
+    "highMinScore": 70,
+    "lowMaxDelayMonths": 3.2,
+    "mediumMaxDelayMonths": 6.8
+  },
+  "sliderRanges": {
+    "openObjections": {
+      "min": 0,
+      "max": 50,
+      "step": 1,
+      "unit": "objections"
+    },
+    "stageDelayDays": {
+      "min": 0,
+      "max": 120,
+      "step": 1,
+      "unit": "days"
+    },
+    "compensationPaidPct": {
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "%"
+    },
+    "forestClearancePending": {
+      "type": "boolean",
+      "label": "Forest clearance pending"
+    }
+  }
+}
