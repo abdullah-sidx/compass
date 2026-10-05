@@ -68,7 +68,7 @@ export default function WhyAtRiskBars({
         </div>
 
         {/* Legend */}
-        <div className="flex items-center gap-3 text-[10px] font-semibold">
+        <div className="flex items-center gap-2.5 text-[10px] font-semibold whitespace-nowrap shrink-0">
           <div className="flex items-center gap-1 text-rose-600">
             <span className="w-2 h-2 rounded-full bg-rose-500" />
             <span>Raises Risk</span>
@@ -100,7 +100,7 @@ export default function WhyAtRiskBars({
                   <span className="font-semibold text-slate-800 truncate">
                     {factor.label}
                   </span>
-                  <span className="text-[11px] font-medium text-slate-500 bg-slate-100 px-1.5 py-0.2 rounded">
+                  <span className="text-[11px] font-medium text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded">
                     {formatRawValue(factor)}
                   </span>
                 </div>

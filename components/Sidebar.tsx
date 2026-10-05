@@ -33,7 +33,7 @@ export default function Sidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="w-64 bg-white border-r border-slate-200 flex flex-col flex-shrink-0 min-h-[calc(100vh-4rem)]">
+    <aside className="w-64 bg-white border-r border-slate-200 flex flex-col flex-shrink-0 h-full overflow-y-auto">
       {/* Navigation Links */}
       <nav className="p-4 space-y-1 flex-1">
         <div className="px-3 py-2 text-[11px] font-semibold text-slate-400 uppercase tracking-wider">

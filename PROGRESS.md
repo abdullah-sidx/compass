@@ -93,6 +93,12 @@
   - Automated acceptance test `scripts/verify-chunk3.ts` passing 100% of checks.
   - Full acceptance verification (`scripts/verify.ts`, `verify-chunk1.ts`, `verify-chunk2.ts`, `verify-chunk3.ts`) passing.
   - Production build (`npm run build`) passing with zero errors.
+  - UI Hardening & Layout Fixes:
+    - Fixed root desktop viewport shell in `app/layout.tsx` (`h-full overflow-hidden` on body, `min-h-0` on flex children) and `components/Sidebar.tsx` (`h-full overflow-y-auto`) so Header and Sidebar stay pinned and navigation never scrolls away or leaves blank gaps.
+    - Added Tailwind theme extensions in `tailwind.config.ts` for `boxShadow["2xs"]` and `backdropBlur.xs` ensuring all cards and floating pills render crisp borders and soft shadows without style drops.
+    - Fixed `ProjectDetailClient.tsx` card hierarchy: placed `RiskGauge` (5 cols) and `WhyAtRiskBars` (7 cols) side-by-side with plenty of horizontal space for single-line legends, followed by full-width `WhatIfSimulator`, and rendered `RecommendedActions` as an expansive 3-column policy deck.
+    - Upgraded placeholder routes (`/payments`, `/reports`, `/settings`, `/alignment`) into rich, functional control tower interfaces with live seeded data tables, state compliance matrices, reset demo controls, and corridor option comparison decks.
+    - Cleaned dev server cache, resolving transient `MODULE_NOT_FOUND` chunk resolution errors.
 
 ## In progress
 (none - Chunk 3 complete)

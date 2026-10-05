@@ -49,40 +49,42 @@ export default function RecommendedActions({
         </span>
       </div>
 
-      {/* Action Cards */}
-      <div className="space-y-2.5 my-2 flex-1">
+      {/* Action Cards Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 my-2 flex-1">
         {actions.map((act, index) => (
           <div
             key={act.id}
-            className="p-3 rounded-lg border border-slate-200/70 hover:border-slate-300 hover:bg-slate-50/60 transition-all flex flex-col gap-1.5"
+            className="p-3.5 bg-slate-50/60 rounded-xl border border-slate-200/80 hover:border-slate-300 hover:bg-slate-50 transition-all flex flex-col justify-between gap-2"
           >
-            {/* Top Row: Priority Badge & Impact */}
-            <div className="flex items-center justify-between">
-              <span
-                className={`text-[10px] font-bold px-2 py-0.5 rounded-full border uppercase tracking-wider ${getBadgeStyle(
-                  act.badge
-                )}`}
-              >
-                {act.badge}
-              </span>
+            <div>
+              {/* Top Row: Priority Badge & Impact */}
+              <div className="flex items-center justify-between mb-2">
+                <span
+                  className={`text-[10px] font-bold px-2 py-0.5 rounded-full border uppercase tracking-wider ${getBadgeStyle(
+                    act.badge
+                  )}`}
+                >
+                  {act.badge}
+                </span>
 
-              <span className="text-[11px] font-semibold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
-                {act.estimatedImpact}
-              </span>
+                <span className="text-[10px] font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+                  {act.estimatedImpact}
+                </span>
+              </div>
+
+              {/* Title */}
+              <h4 className="text-xs font-bold text-slate-900 leading-snug">
+                <span className="text-slate-400 font-mono text-[10px] mr-1">
+                  #{index + 1}
+                </span>
+                {act.title}
+              </h4>
+
+              {/* Description */}
+              <p className="text-[11px] text-slate-600 leading-relaxed mt-1.5">
+                {act.description}
+              </p>
             </div>
-
-            {/* Title */}
-            <h4 className="text-xs font-bold text-slate-900 flex items-center gap-1.5">
-              <span className="text-slate-400 font-mono text-[10px]">
-                {index + 1}.
-              </span>
-              <span>{act.title}</span>
-            </h4>
-
-            {/* Description */}
-            <p className="text-[11px] text-slate-600 leading-relaxed pl-3.5">
-              {act.description}
-            </p>
           </div>
         ))}
       </div>

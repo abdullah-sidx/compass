@@ -21,6 +21,12 @@ const config: Config = {
           delayed: "#dc2626",        // Red
         },
       },
+      boxShadow: {
+        "2xs": "0 1px 2px 0 rgba(0, 0, 0, 0.05)",
+      },
+      backdropBlur: {
+        xs: "2px",
+      },
     },
   },
   plugins: [],

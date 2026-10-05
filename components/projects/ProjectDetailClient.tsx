@@ -210,10 +210,9 @@ export default function ProjectDetailClient({ project }: ProjectDetailClientProp
         </div>
       </div>
 
-      {/* Row 1: Risk Gauge + Why At Risk Bars + Recommended Actions */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* Left Column: Risk Gauge (4 cols on lg) */}
-        <div className="lg:col-span-4">
+      {/* Row 1: Risk Gauge (Left) + Why At Risk Bars (Right) */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+        <div className="lg:col-span-5 xl:col-span-4">
           <RiskGauge
             score={currentPrediction.score}
             level={currentPrediction.level}
@@ -224,18 +223,9 @@ export default function ProjectDetailClient({ project }: ProjectDetailClientProp
           />
         </div>
 
-        {/* Center Column: Why At Risk Top 5 Factors (4 cols on lg) */}
-        <div className="lg:col-span-4">
+        <div className="lg:col-span-7 xl:col-span-8">
           <WhyAtRiskBars
             factors={currentPrediction.topFactors}
-            isSimulated={isSimulated}
-          />
-        </div>
-
-        {/* Right Column: Recommended Actions (4 cols on lg) */}
-        <div className="lg:col-span-4">
-          <RecommendedActions
-            actions={currentActions}
             isSimulated={isSimulated}
           />
         </div>
@@ -247,6 +237,12 @@ export default function ProjectDetailClient({ project }: ProjectDetailClientProp
         baselineDelayMonths={project.estDelayMonths}
         baselineScore={project.riskScore}
         onSimulationChange={handleSimulationChange}
+      />
+
+      {/* Row 3: Recommended Actions Policy Deck */}
+      <RecommendedActions
+        actions={currentActions}
+        isSimulated={isSimulated}
       />
     </div>
   );
