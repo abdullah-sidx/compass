@@ -17,6 +17,11 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* iOS momentum scrolling for overflow containers */
+.webkit-scroll-touch {
+  -webkit-overflow-scrolling: touch;
+}
+
 /* Card and container styling */
 .card-white {
   background-color: #ffffff;

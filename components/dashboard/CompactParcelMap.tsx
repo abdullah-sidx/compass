@@ -29,9 +29,9 @@ export default function CompactParcelMap({
   }, [selectedParcel, allProjects]);
 
   return (
-    <div className="bg-white rounded-xl border border-slate-200/80 shadow-sm flex flex-col h-full min-h-[560px] overflow-hidden">
+    <div className="bg-white rounded-xl border border-slate-200/80 shadow-sm flex flex-col h-full min-h-[400px] md:min-h-[560px] overflow-hidden">
       {/* Header */}
-      <div className="p-5 pb-3 border-b border-slate-100 flex items-center justify-between">
+      <div className="p-5 sm:p-4 pb-3 border-b border-slate-100 flex items-center justify-between">
         <div>
           <div className="flex items-center gap-2">
             <h2 className="text-sm font-bold text-slate-900 tracking-tight">
@@ -66,7 +66,7 @@ export default function CompactParcelMap({
       </div>
 
       {/* Compact Map Viewport */}
-      <div className="relative flex-1 w-full h-full min-h-[460px] overflow-hidden">
+      <div className="relative flex-1 w-full h-full min-h-[320px] md:min-h-[460px] overflow-hidden">
         <ParcelMapWrapper
           parcels={allParcels}
           projects={allProjects}
@@ -80,7 +80,7 @@ export default function CompactParcelMap({
         />
 
         {/* Floating Bottom Quick Stat Bar */}
-        <div className="absolute top-3 right-3 z-10 hidden sm:flex items-center gap-3 px-3 py-1.5 bg-white/90 backdrop-blur-xs rounded-lg shadow-2xs border border-slate-200 text-xs text-slate-600">
+        <div className="absolute top-3 right-3 z-10 flex items-center gap-3 px-3 py-1.5 bg-white/90 backdrop-blur-xs rounded-lg shadow-2xs border border-slate-200 text-xs text-slate-600">
           <div>
             <span className="text-slate-400 text-[10px] uppercase font-semibold mr-1">Parcels:</span>
             <span className="font-bold text-slate-900">{stats.parcelsCount}</span>
