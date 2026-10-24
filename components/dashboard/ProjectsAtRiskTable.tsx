@@ -25,7 +25,7 @@ export default function ProjectsAtRiskTable({
   const highRiskCount = projects.filter((p) => p.riskLevel === "High").length;
 
   return (
-    <div className="bg-white rounded-xl border border-slate-200/80 shadow-sm flex flex-col h-full min-h-[560px] overflow-hidden">
+    <div className="bg-white rounded-xl border border-slate-200/80 shadow-sm flex flex-col h-full min-h-[400px] md:min-h-[560px] overflow-hidden">
       {/* Header */}
       <div className="p-5 pb-3 border-b border-slate-100 flex items-center justify-between">
         <div>
@@ -54,7 +54,7 @@ export default function ProjectsAtRiskTable({
       </div>
 
       {/* Projects List/Table Container */}
-      <div className="flex-1 overflow-y-auto divide-y divide-slate-100 max-h-[560px]">
+      <div className="flex-1 overflow-y-auto divide-y divide-slate-100 max-h-[560px] webkit-scroll-touch">
         {sortedProjects.length === 0 ? (
           <div className="p-8 text-center flex flex-col items-center justify-center h-full">
             <div className="w-10 h-10 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center mb-2">

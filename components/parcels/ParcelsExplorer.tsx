@@ -163,7 +163,7 @@ export default function ParcelsExplorer() {
       </div>
 
       {/* Main Map + List Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 h-[calc(100vh-175px)] min-h-[620px]">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 min-h-[500px] md:min-h-[620px]">
         {/* Left Column: Search & Parcels List */}
         <div className="lg:col-span-5 xl:col-span-4 bg-white rounded-xl border border-slate-200/90 shadow-sm flex flex-col h-full overflow-hidden">
           {/* Search Box Header */}
@@ -239,7 +239,7 @@ export default function ParcelsExplorer() {
           </div>
 
           {/* Scrollable Parcel Cards */}
-          <div className="flex-1 overflow-y-auto p-3 space-y-2">
+          <div className="flex-1 overflow-y-auto p-3 space-y-2 webkit-scroll-touch">
             {filteredParcels.length === 0 ? (
               <div className="text-center py-12 px-4">
                 <Layers className="w-8 h-8 text-slate-300 mx-auto mb-2" />
@@ -322,8 +322,12 @@ export default function ParcelsExplorer() {
           </div>
         </div>
 
-        {/* Right Main Column: Full GIS Map */}
-        <div className="lg:col-span-7 xl:col-span-8 bg-white rounded-xl border border-slate-200/90 shadow-sm flex flex-col h-full overflow-hidden relative">
+        {/* Right Main Column: Full GIS Map
+            On mobile the grid is single-column, so the map is ordered first:
+            it renders right under the page header and above the filter panel.
+            At lg the grid becomes 12 columns and the original desktop order
+            (list left, map right) is restored. */}
+        <div className="lg:col-span-7 xl:col-span-8 bg-white rounded-xl border border-slate-200/90 shadow-sm flex flex-col h-full overflow-hidden relative order-first lg:order-none">
           <ParcelMapWrapper
             parcels={filteredParcels}
             projects={allProjects}
@@ -337,6 +341,7 @@ export default function ParcelsExplorer() {
             compact={false}
             showControls={true}
             showLegend={true}
+            scrollableControls={true}
             className="flex-1"
           />
         </div>

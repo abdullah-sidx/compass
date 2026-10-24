@@ -42,6 +42,12 @@ export interface ParcelMapProps {
   compact?: boolean;
   showControls?: boolean;
   showLegend?: boolean;
+  /**
+   * Render the top control bar as a single horizontally scrollable row below
+   * 640px instead of letting it wrap. Keeps the map block short on mobile.
+   * Desktop (640px+) keeps the normal wrapping layout.
+   */
+  scrollableControls?: boolean;
   className?: string;
 }
 
@@ -58,6 +64,7 @@ export default function ParcelMap({
   compact = false,
   showControls = true,
   showLegend = true,
+  scrollableControls = false,
   className = "",
 }: ParcelMapProps) {
   const mapContainerRef = useRef<HTMLDivElement>(null);
@@ -506,12 +513,24 @@ export default function ParcelMap({
     });
   }, [compact, onSelectProject, onSelectState]);
 
+  const controlsBarClass = scrollableControls
+    ? "z-10 bg-white/95 backdrop-blur-xs border-b border-slate-200 shadow-xs flex flex-nowrap sm:flex-wrap items-center justify-start sm:justify-between gap-2 sm:gap-3 p-1.5 sm:p-3 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden webkit-scroll-touch"
+    : "z-10 bg-white/95 backdrop-blur-xs border-b border-slate-200 p-3 flex flex-wrap items-center justify-between gap-3 shadow-xs";
+
+  const controlsGroupClass = scrollableControls
+    ? "flex flex-nowrap sm:flex-wrap items-center gap-2 sm:gap-2.5 max-sm:shrink-0"
+    : "flex flex-wrap items-center gap-2.5";
+
+  const controlsActionsClass = scrollableControls
+    ? "flex items-center gap-2 max-sm:shrink-0"
+    : "flex items-center gap-2";
+
   return (
     <div className={`relative flex flex-col w-full h-full overflow-hidden bg-slate-100 ${className}`}>
       {/* Top Filter Bar in Full Mode */}
       {showControls && !compact && (
-        <div className="z-10 bg-white/95 backdrop-blur-xs border-b border-slate-200 p-3 flex flex-wrap items-center justify-between gap-3 shadow-xs">
-          <div className="flex flex-wrap items-center gap-2.5">
+        <div className={controlsBarClass}>
+          <div className={controlsGroupClass}>
             {/* State filter dropdown */}
             <div className="relative inline-flex items-center">
               <span className="text-[11px] font-semibold text-slate-400 mr-1.5 uppercase">State:</span>
@@ -579,7 +598,7 @@ export default function ParcelMap({
           </div>
 
           {/* Quick Action Buttons */}
-          <div className="flex items-center gap-2">
+          <div className={controlsActionsClass}>
             <button
               onClick={handleResetView}
               className="flex items-center gap-1.5 px-3 py-1.5 bg-white hover:bg-slate-50 text-slate-700 text-xs font-medium rounded-lg border border-slate-200 shadow-2xs transition-colors"

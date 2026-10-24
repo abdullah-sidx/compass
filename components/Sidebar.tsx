@@ -1,8 +1,9 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { X } from "lucide-react";
 import {
   LayoutDashboard,
   Layers,
@@ -12,6 +13,7 @@ import {
   FileSpreadsheet,
   Settings,
 } from "lucide-react";
+import { useMobileMenu } from "@/app/mobile-menu-provider";
 
 interface NavItem {
   name: string;
@@ -30,10 +32,44 @@ const navItems: NavItem[] = [
 ];
 
 export default function Sidebar() {
+  const { isMobileMenuOpen, setIsMobileMenuOpen } = useMobileMenu();
   const pathname = usePathname();
+  const prevPathname = useRef(pathname);
+
+  // Close mobile menu when the route changes. The previous pathname is tracked
+  // with a ref so this effect only re-runs on navigation — NOT when
+  // isMobileMenuOpen changes, which would close the drawer the instant it opens.
+  useEffect(() => {
+    if (prevPathname.current === pathname) return;
+    prevPathname.current = pathname;
+    setIsMobileMenuOpen(false);
+  }, [pathname, setIsMobileMenuOpen]);
 
   return (
-    <aside className="w-64 bg-white border-r border-slate-200 flex flex-col flex-shrink-0 h-full overflow-y-auto">
+    <aside
+      aria-hidden={!isMobileMenuOpen}
+      className={`bg-white flex flex-col flex-shrink-0 h-full overflow-y-auto transition-transform duration-300 ease-in-out ${
+        isMobileMenuOpen
+          ? "fixed inset-y-0 left-0 z-50 w-64 shadow-xl transform translate-x-0"
+          : "fixed inset-y-0 left-0 z-50 w-64 transform -translate-x-full pointer-events-none sm:static sm:flex sm:w-64 sm:border-r sm:border-slate-200 sm:transform-none sm:pointer-events-auto"
+      }`}
+    >
+      {isMobileMenuOpen && (
+        <div className="flex items-center justify-between p-3 border-b border-slate-200 bg-slate-50">
+          <div className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
+            Navigation
+          </div>
+          <button
+            type="button"
+            onClick={() => setIsMobileMenuOpen(false)}
+            aria-label="Close navigation menu"
+            className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-200 rounded-lg transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+      )}
+
       {/* Navigation Links */}
       <nav className="p-4 space-y-1 flex-1">
         <div className="px-3 py-2 text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
@@ -50,11 +86,12 @@ export default function Sidebar() {
             <Link
               key={item.href}
               href={item.href}
+              onClick={() => setIsMobileMenuOpen(false)}
               className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
                 isActive
                   ? "bg-blue-50 text-blue-700 shadow-sm"
                   : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
-              }`}
+              } min-h-[44px]`}
             >
               <Icon
                 className={`w-4 h-4 ${
